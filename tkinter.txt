@@ -1,6 +1,0 @@
-explicación tkinter modulos importantes
-
-Hay una ventana principal y si quiero otra secundaria pongo el control(widget) "Toplevel"
-estos widgets tienen atributos que sirven para modificarles características como: "Dimensions,Colors,Fonts,Anchors,Relief styles,Bitmaps,Cursors"
- 
-en los command= de button no poner parámetros solo el nombre de la función

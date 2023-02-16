@@ -13,6 +13,8 @@ url="https://sevilla.abc.es/rss/feeds/Sevilla_Sevilla.xml"
 meses = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
                     'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
 
+global texto
+
 def store_data():
     con = sqlite3.connect("SevillaNewsDB.sqlite")
     con.text_factory = str
@@ -50,58 +52,53 @@ def list_data():
     scrollbar.config(command=lb.yview)
 
 
-    
 
-def new_window(filter):
-    def guardar_texto():
-        global texto
-        texto = entry.get()
-    if filter == 0:
-        tkmonth = Toplevel()
-        tkmonth.title("Filter by month")
-        label = Label(tkmonth,text="Introduzca el mes: (Xxx)")
-        label.pack(side=LEFT)
-        entry = Entry(tkmonth,bd=5)
-        entry.pack(side=RIGHT)
-        boton = Button(tkmonth,text="Obtener texto",command=guardar_texto)
-        boton.pack(side=RIGHT)
-        return texto
-    
-    else:
-        tkday = Toplevel()
-        tkday.title("Filter by day")
-        label = Label(tkday,text="Introduzca el día: (dd/mm/aaaa)")
-        label.pack(side=LEFT)
-        entry = Entry(tkday,bd=5)
-        entry.pack(side=RIGHT)
-        day = entry.get()
-        return day
 
-def search_month():
-    
-    entry = new_window(0)
-    month = meses[entry]
-    window= Toplevel()
-    window.title("Results")
-    scrollbar = Scrollbar(window)
-    scrollbar.pack(side = RIGHT, fill =Y )
-    con = sqlite3.connect("SevillaNewsDB.sqlite")
-    con.text_factory = str
-    cursor = con.cursor()
-    expresion = f".*/"+{month}+"/.*"
-    seleq = cursor.execute("""SELECT * FROM news WHERE pubdate LIKE ?""", (expresion))
-    list_month_data = seleq.fetchall()
-    cursor.close()
-    con.close()
+def new_window_month():
+    def search_month(event):
+        month=entry.get()
+        window= Toplevel()
+        window.title("Results")
+        scrollbar = Scrollbar(window)
+        scrollbar.pack(side = RIGHT, fill =Y )
+        con = sqlite3.connect("SevillaNewsDB.sqlite")
+        con.text_factory = str
+        cursor = con.cursor()
+        expresion = "%"+ str(meses[month]) +"%"
+        seleq = cursor.execute(""" SELECT * FROM NEWS WHERE pubdate LIKE ?""", (expresion,))
+        list_month_data = seleq.fetchall()
+        cursor.close()
+        con.close()
+        lb = Listbox(window, width=150, yscrollcommand=scrollbar.set)
+        for row in list_month_data:
+            lb.insert(END,row[0])
+            lb.insert(END,row[1])
+            lb.insert(END,row[2])
+            lb.insert(END,"")
+        lb.pack(side=LEFT,fill=BOTH)
+        scrollbar.config(command=lb.yview)
+        
+    tkmonth = Toplevel()
+    tkmonth.title("Filter by month")
+    label = Label(tkmonth,text="Introduzca el mes: (Xxx)")
+    label.pack(side=LEFT)
+    entry = Entry(tkmonth,bd=5)
+    entry.bind("<Return>", search_month)
+    entry.pack(side = RIGHT)
 
-    lb = Listbox(window, width=150, yscrollcommand=scrollbar.set)
-    for row in list_month_data:
-        lb.insert(END,row[0])
-        lb.insert(END,row[1])
-        lb.insert(END,row[2])
-        lb.insert(END,"")
-    lb.pack(side=LEFT,fill=BOTH)
-    scrollbar.config(command=lb.yview)
+
+def new_window_day():   
+
+    tkday = Toplevel()
+    tkday.title("Filter by day")
+    label = Label(tkday,text="Introduzca el día: (dd/mm/aaaa)")
+    label.pack(side=LEFT)
+    entry = Entry(tkday,bd=5)
+    entry.pack(side=RIGHT)
+    day = entry.get()
+    return day
+
+
 
 def first_window():
     top = Tk()
@@ -109,7 +106,7 @@ def first_window():
     Almacenar.pack(side=LEFT)
     Listar = Button(top,command=list_data, text="Listar")
     Listar.pack(side=LEFT)
-    Busca_Mes =Button(top,command=search_month, text="Busca Mes")
+    Busca_Mes =Button(top,command=new_window_month, text="Busca Mes")
     Busca_Mes.pack(side=LEFT)
     Busca_Día =Button(top, text="Busca Día")
     Busca_Día.pack(side=LEFT)
