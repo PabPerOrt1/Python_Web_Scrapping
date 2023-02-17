@@ -41,6 +41,7 @@ def list_data():
     cursor = con.cursor()
     name = cursor.execute("SELECT title,link,pubdate FROM news")
     do=name.fetchall()
+    cursor.close()
 
     lb = Listbox(room, width=150, yscrollcommand=scrollbar.set)
     for row in do:
@@ -87,16 +88,36 @@ def new_window_month():
     entry.pack(side = RIGHT)
 
 
-def new_window_day():   
-
-    tkday = Toplevel()
-    tkday.title("Filter by day")
-    label = Label(tkday,text="Introduzca el día: (dd/mm/aaaa)")
+def new_window_day():
+    def search_day(event):
+        day=entry.get()
+        window= Toplevel()
+        window.title("Results")
+        scrollbar = Scrollbar(window)
+        scrollbar.pack(side = RIGHT, fill =Y )
+        con = sqlite3.connect("SevillaNewsDB.sqlite")
+        con.text_factory = str
+        cursor = con.cursor()
+        seleq = cursor.execute(""" SELECT * FROM NEWS WHERE pubdate LIKE ?""", (day,))
+        list_month_data = seleq.fetchall()
+        cursor.close()
+        con.close()
+        lb = Listbox(window, width=150, yscrollcommand=scrollbar.set)
+        for row in list_month_data:
+            lb.insert(END,row[0])
+            lb.insert(END,row[1])
+            lb.insert(END,row[2])
+            lb.insert(END,"")
+        lb.pack(side=LEFT,fill=BOTH)
+        scrollbar.config(command=lb.yview)
+        
+    tkmonth = Toplevel()
+    tkmonth.title("Filter by day")
+    label = Label(tkmonth,text="Introduzca el dia: (dd/mm/aaaa)")
     label.pack(side=LEFT)
-    entry = Entry(tkday,bd=5)
-    entry.pack(side=RIGHT)
-    day = entry.get()
-    return day
+    entry = Entry(tkmonth,bd=5)
+    entry.bind("<Return>", search_day)
+    entry.pack(side = RIGHT)
 
 
 
@@ -108,7 +129,7 @@ def first_window():
     Listar.pack(side=LEFT)
     Busca_Mes =Button(top,command=new_window_month, text="Busca Mes")
     Busca_Mes.pack(side=LEFT)
-    Busca_Día =Button(top, text="Busca Día")
+    Busca_Día =Button(top,command=new_window_day, text="Busca Día")
     Busca_Día.pack(side=LEFT)
     top.mainloop()
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ def cargar():
     
     for vino in list_una_pag:
         detalles=vino.find("div",class_="details")
+        
         nombre=detalles.find("a")["title"]
         bodega=detalles.find("div",class_="cellar-name").string
         region=detalles.find("div",class_="region").string

@@ -26,6 +26,7 @@ def print_with_format(formated_list):
         print("Título: " + str(l[0]))
         print("Link: " + str(l[1]))
         print("Fecha: " + str(l[2]))
+        print(" ")
 
 if __name__ == "__main__":
     url="https://sevilla.abc.es/rss/feeds/Sevilla_Sevilla.xml"
