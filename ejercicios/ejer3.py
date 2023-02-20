@@ -20,6 +20,47 @@ def load_data():
     messagebox.showinfo("Base Datos", "Base de Dats creada correctamente \nHay " + str(cursor.fetchone()[0])+ " registros")
     con.close()    
 
+def list_data():
+    room = Toplevel()
+    room.title("Listar")
+    scrollbar = Scrollbar(room)
+    scrollbar.pack(side = RIGHT, fill =Y )
+    con = sqlite3.connect("BooksDataDB.sqlite")
+    cursor = con.cursor()
+    name = cursor.execute("SELECT ISBN,TITLE,AUTHOR,YEAR,PUBLISHER FROM BOOKS")
+    do=name.fetchall()
+    cursor.close()
+    lb = Listbox(room, width=150, yscrollcommand=scrollbar.set)
+    for row in do:
+        lb.insert(END,row[0])
+        lb.insert(END,row[1])
+        lb.insert(END,row[2])
+        lb.insert(END,row[3])
+        lb.insert(END,row[4])
+        lb.insert(END,"")
+    lb.pack(side=LEFT,fill=BOTH)
+    scrollbar.config(command=lb.yview)
+
+def listar_ordenado():
+    def lista():
+        conn = sqlite3.connect('books.db')
+        conn.text_factory = str
+        if control.get() == 1:
+            cursor = conn.execute("SELECT ISBN, TITLE, AUTHOR, YEAR FROM BOOKS ORDER BY ISBN")
+        else:
+            cursor = conn.execute("SELECT ISBN, TITLE, AUTHOR, YEAR FROM BOOKS ORDER BY YEAR")
+        conn.close
+        listar(cursor)
+    ventana = Toplevel()
+    control = IntVar()
+    rb1 = Radiobutton(ventana, text="OrdenadoporAño", variable=control, value=0)
+    rb2 = Radiobutton(ventana, text="Ordenadopor ISBN", variable=control, value=1)
+    b = Button(ventana, text="Listar", command=lista)
+    rb1.pack()
+    rb2.pack()
+    b.pack()
+
+
 def first_window():
     app = Tk()
     app.title("Book app")
@@ -32,7 +73,7 @@ def first_window():
     
     listmenu= Menu(menu,tearoff=0)
     menu.add_cascade(label="Listar",menu=listmenu)
-    listmenu.add_command(label = "Completo")
+    listmenu.add_command(label = "Completo",command=list_data)
     listmenu.add_command(label = "Ordenado")
 
     searchmenu = Menu(menu, tearoff = 0)
