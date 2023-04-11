@@ -20,6 +20,29 @@ def abrir_urls():
         lista.extend(list_una_pag)
     return lista
 
+def list_data():
+    room = Toplevel()
+    room.title("Listar")
+    scrollbar = Scrollbar(room)
+    scrollbar.pack(side = RIGHT, fill =Y )
+    con = sqlite3.connect("VinosDB.sqlite")
+    cursor = con.cursor()
+    name = cursor.execute("SELECT NAME,PRICE,ORIGIN,WINE_CELLAR,GRAPE_TYPE FROM VINOS")
+    do=name.fetchall()
+    cursor.close()
+    lb = Listbox(room, width=150, yscrollcommand=scrollbar.set)
+    for row in do:
+        lb.insert(END,"Vino: "+str(row[0]))
+        lb.insert(END,"-------------------------")
+        lb.insert(END,"Precio: "+row[1])
+        lb.insert(END,"Origen: "+row[2])
+        lb.insert(END,"Nombre bodega: "+row[3])
+        lb.insert(END,"Tipo de uva: "+row[4])
+        lb.insert(END,"")
+        lb.insert(END,"")
+    lb.pack(side=LEFT,fill=BOTH)
+    scrollbar.config(command=lb.yview)
+
 def cargar():
     con = sqlite3.connect("VinosDB.sqlite")
     con.execute("DROP TABLE IF EXISTS VINOS")
@@ -45,6 +68,7 @@ def cargar():
     messagebox.showinfo("Base Datos", "Base de datos creada correctamente \nHay " + str(num_vinos.fetchone()[0])+ " número de vinos")
     cursor.close()
     con.close()
+    
 def first_window():
     app = Tk()
     app.title("Vino app")
@@ -53,7 +77,7 @@ def first_window():
     datamenu = Menu(menu, tearoff = 0)
     menu.add_cascade(label="Datos", menu= datamenu) 
     datamenu.add_command(label = "Cargar",command=cargar)
-    datamenu.add_command(label = "Listar")
+    datamenu.add_command(label = "Listar",command=list_data)
     datamenu.add_command(label = "Salir",command=app.quit)
     
     # listmenu= Menu(menu,tearoff=0)
